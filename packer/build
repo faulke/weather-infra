@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+### run ./build {version} as build step with version passed as parameter from branch name? teamcity.build.branch
+export AMI="$(aws ec2 describe-images --filters Name=tag:Name,Values=WebServerBase --query Images[0].[ImageId] --output text)"
+export VERSION=$1
+echo "${AMI}"
+echo ${VERSION}
+
+# validate packer script prior to build
+packer validate -var-file=variables.json -var 'ami=$OUTPUT' -var 'version=$VERSION' app-packer.json
+
+packer build -var-file=variables.json app-packer.json

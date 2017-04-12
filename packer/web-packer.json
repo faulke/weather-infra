@@ -1,0 +1,28 @@
+{
+  "variables": {
+    "aws_access_key": null,
+    "aws_secret_key": null
+  },
+  "builders": [{
+    "type": "amazon-ebs",
+    "access_key": "{{user `aws_access_key`}}",
+    "secret_key": "{{user `aws_secret_key`}}",
+    "region": "us-west-2",
+    "source_ami": "{{user `base_web_ami`}}",
+    "instance_type": "t2.micro",
+    "ssh_username": "ec2-user",
+    "ami_name": "WebServerBase",
+    "tags" : {
+      "Name": "WebServerBase"
+    }
+  }],
+  "provisioners": [{
+    "type": "shell",
+    "inline": [
+      "sleep 15",
+      "sudo yum -y update",
+      "curl --silent --location https://rpm.nodesource.com/setup_6.x | sudo bash -",
+      "sudo yum -y install nodejs"
+    ]
+  }]
+}
