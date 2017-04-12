@@ -1,9 +1,11 @@
 {
   "variables": {
-    "aws_access_key": null,
-    "aws_secret_key": null,
+    "aws_access_key": "{{env `AWS_ACCESS_KEY`}}",
+    "aws_secret_key": "{{env `AWS_SECRET_KEY`}}",
     "ami": "{{env `AMI`}}",
-    "version": "{{env `VERSION`}}"
+    "version": "{{env `VERSION`}}",
+    "source": null,
+    "destination": "~/usr/bin/weatherapp"
   },
   "builders": [{
     "type": "amazon-ebs",
@@ -13,10 +15,16 @@
     "source_ami": "{{user `ami`}}",
     "instance_type": "t2.micro",
     "ssh_username": "ec2-user",
+    "force_deregister": true,
     "ami_name": "Weather-{{user `version`}}",
     "tags": {
       "Name": "Weather-{{user `version`}}",
       "Version": "{{user `version`}}"
     }
+  }],
+  "provisioners": [{
+    "type": "file",
+    "source": "{{user `source`}}",
+    "destination": "{{user `destination`}}"
   }]
 }
