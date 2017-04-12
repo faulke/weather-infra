@@ -16,6 +16,7 @@
     "instance_type": "t2.micro",
     "ssh_username": "ec2-user",
     "force_deregister": true,
+    "force_delete_snapshot": true,
     "ami_name": "Weather-{{user `version`}}",
     "tags": {
       "Name": "Weather-{{user `version`}}",
