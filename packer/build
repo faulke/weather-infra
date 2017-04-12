@@ -10,4 +10,4 @@ echo ${SOURCE}
 # validate packer script prior to build
 packer validate app-packer.json
 
-## packer build app-packer.json
+packer build app-packer.json
