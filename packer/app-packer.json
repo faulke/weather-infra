@@ -5,7 +5,7 @@
     "ami": "{{env `AMI`}}",
     "version": "{{env `VERSION`}}",
     "source": null,
-    "destination": "~/usr/bin/weatherapp"
+    "destination": "~/usr/bin"
   },
   "builders": [{
     "type": "amazon-ebs",
