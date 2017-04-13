@@ -23,9 +23,21 @@
       "Version": "{{user `version`}}"
     }
   }],
-  "provisioners": [{
-    "type": "file",
-    "source": "{{user `source`}}",
-    "destination": "{{user `destination`}}"
-  }]
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "{{user `source`}}",
+      "destination": "{{user `destination`}}"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sudo mkdir weatherapp",
+        "sudo unzip weatherapp.zip -d ./weatherapp",
+        "cd weatherapp",
+        "sudo npm install forever -g",
+        "sudo aws s3 cp s3://envtester/.env .env"
+      ]
+    }
+  ]
 }
