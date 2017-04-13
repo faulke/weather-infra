@@ -34,7 +34,7 @@
       "type": "shell",
       "inline": [
         "sudo mkdir weatherapp",
-        "sudo unzip weatherapp.zip -d ./weatherapp",
+        "sudo unzip -qq weatherapp.zip -d ./weatherapp",
         "cd weatherapp",
         "sudo npm install forever -g",
         "sudo aws s3 cp s3://envtester/.env .env"
