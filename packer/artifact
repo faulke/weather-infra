@@ -1,2 +1,2 @@
-!#/bin/env bash
-curl.exe -O --user %env.USER%:%env.PASSWORD% %teamcity.serverUrl%/httpAuth/app/rest/builds/buildType:Weatherapp_Build,branch:%system.version%/artifacts/content/weather-%system.version%.zip
+#!/usr/bin/env bash
+curl.exe -O --user $1:$2 $3/httpAuth/app/rest/builds/buildType:Weatherapp_Build,branch:$4/artifacts/content/weather-$5.zip
