@@ -5,7 +5,7 @@
     "ami": "{{env `AMI`}}",
     "version": "{{env `VERSION`}}",
     "source": "{{env `SOURCE`}}",
-    "destination": "/home/ec2-user/weatherapp"
+    "destination": "/home/ec2-user/weatherapp.zip"
   },
   "builders": [{
     "type": "amazon-ebs",
