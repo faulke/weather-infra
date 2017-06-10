@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 echo $1
-terraform --version
 
 # initialize ami id variable
 AMI="None"
@@ -12,8 +11,6 @@ until [ $AMI != "None" ]; do
   done
 
 echo $AMI
-
-terraform --version
 
 # get tfstate from s3 backend
 terraform init
