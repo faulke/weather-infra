@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 echo $1
+terraform --version
 
 # initialize ami id variable
 AMI="None"
