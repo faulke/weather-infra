@@ -1,3 +1,12 @@
+## s3 backend
+terraform {
+  backend "s3" {
+    bucket = "weather-infra"
+    key    = "terraform.tfstate"
+    region = "us-west-2"
+  }
+}
+
 ## configure aws provider
 provider "aws" {
   access_key = "${var.access_key}"
