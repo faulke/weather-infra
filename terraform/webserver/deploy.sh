@@ -6,4 +6,4 @@ echo $AMI
 terraform init
 
 terraform plan -var ami=$AMI -var access_key=$AWS_ACCESS_KEY_ID -var secret_key=$AWS_SECRET_ACCESS_KEY
-terraform apply -var ami=$AMI
+terraform apply -var ami=$AMI -var access_key=$AWS_ACCESS_KEY_ID -var secret_key=$AWS_SECRET_ACCESS_KEY
