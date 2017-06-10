@@ -5,16 +5,37 @@ provider "aws" {
   region     = "${var.aws_region}"
 }
 
-## create public subnet a
-resource "aws_subnet" "weather-public" {
+## create public subnets in different AZs
+resource "aws_subnet" "weather-public-a" {
   vpc_id                  = "${var.vpc_id}"
-  cidr_block              = "10.0.2.0/24"
+  cidr_block              = "10.0.1.0/24"
+  availability_zone       = "us-west-2a"
   map_public_ip_on_launch = true
+
+  tags {
+    Name = "weather-public-a"
+  }
 }
 
-## associate subnet with public route table
-resource "aws_route_table_association" "tf-rta-weather-public" {
-  subnet_id      = "${aws_subnet.weather-public.id}"
+resource "aws_subnet" "weather-public-b" {
+  vpc_id                  = "${var.vpc_id}"
+  cidr_block              = "10.0.2.0/24"
+  availability_zone       = "us-west-2b"
+  map_public_ip_on_launch = true
+
+  tags {
+    Name = "weather-public-b"
+  }
+}
+
+## associate subnets with public route table
+resource "aws_route_table_association" "tf-rta-weather-public-a" {
+  subnet_id      = "${aws_subnet.weather-public-a.id}"
+  route_table_id = "${var.route_table_id}"
+}
+
+resource "aws_route_table_association" "tf-rta-weather-public-b" {
+  subnet_id      = "${aws_subnet.weather-public-b.id}"
   route_table_id = "${var.route_table_id}"
 }
 
@@ -82,7 +103,7 @@ resource "aws_security_group" "weather-ec2-sg" {
 ## create elasic load balancer
 resource "aws_elb" "weather-elb" {
   name            = "tf-weather-elb"
-  subnets         = ["${aws_subnet.weather-public.id}"]
+  subnets         = ["${aws_subnet.weather-public-a.id}", "${aws_subnet.weather-public-b.id}"]
   security_groups = ["${aws_security_group.weather-elb-sg.id}"]
 
   listener {
@@ -103,34 +124,48 @@ resource "aws_elb" "weather-elb" {
   health_check {
     healthy_threshold   = 2
     unhealthy_threshold = 10
-    timeout             = 29
+    timeout             = 5
     target              = "HTTP:3000/index.html"
-    interval            = 30
+    interval            = 10
   }
-
-  instances = ["${aws_instance.weather-ec2.id}"]
 }
 
-## output the elb dns
-output "elb_dns" {
-  value = "${aws_elb.weather-elb.dns_name}"
+# Send simpleweather.us to the load balancer
+resource "aws_route53_record" "simpleweather-us" {
+  zone_id = "${var.zone_id}"
+  name    = "simpleweather.us"
+  type    = "A"
+
+  alias {
+    zone_id                = "${aws_elb.weather-elb.zone_id}"
+    name                   = "${aws_elb.weather-elb.dns_name}."
+    evaluate_target_health = false
+  }
 }
 
-## create base web server ec2 instance
-resource "aws_instance" "weather-ec2" {
-  instance_type = "t2.micro"
-  ami           = "${var.ami}"
+resource "aws_autoscaling_group" "asg-weather" {
+  lifecycle { create_before_destroy = true }
 
-  tags {
-    Name = "tf-weather-app-server"
-  }
+  name = "asg-weather - ${aws_launch_configuration.lc-weather.name}"
+  max_size = 1
+  min_size = 1
+  wait_for_elb_capacity = 1
+  desired_capacity = 1
+  health_check_grace_period = 300
+  health_check_type = "ELB"
+  launch_configuration = "${aws_launch_configuration.lc-weather.id}"
+  load_balancers = ["${aws_elb.weather-elb.id}"]
+  vpc_zone_identifier = ["${aws_subnet.weather-public-a.id}", "${aws_subnet.weather-public-b.id}"]
+}
 
-  # key name for SSH access
-  key_name = "${var.key_name}"
+resource "aws_launch_configuration" "lc-weather" {
+    lifecycle { create_before_destroy = true }
 
-  vpc_security_group_ids = ["${aws_security_group.weather-ec2-sg.id}"]
+    image_id = "${var.ami}"
+    instance_type = "t2.micro"
+    key_name = "${var.key_name}"
 
-  subnet_id = "${aws_subnet.weather-public.id}"
+    security_groups = ["${aws_security_group.weather-ec2-sg.id}"]
 
-  user_data = "sudo yum update -y"
+    user_data = "${file("./user-data.sh")}"
 }
