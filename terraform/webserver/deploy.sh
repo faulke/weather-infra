@@ -12,6 +12,8 @@ until [ $AMI != "None" ]; do
 
 echo $AMI
 
+terraform --version
+
 # get tfstate from s3 backend
 terraform init
 
