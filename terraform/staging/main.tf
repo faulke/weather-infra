@@ -17,7 +17,8 @@ provider "aws" {
 ## set up vpc (public/private subnets, route tables, igw)
 module "staging_vpc" {
   source         = "../modules/vpc"
-  vpc_id         = "${var.vpc_id}"
+  vpc_cidr       = "${var.vpc_cidr}"
+  vpc_name       = "${var.vpc_name}"
   public_subnets = "${var.public_subnets}"
   public_azs     = "${var.public_azs}"
 }
@@ -25,7 +26,7 @@ module "staging_vpc" {
 ## production load balancer
 module "staging_elb" {
   source   = "../modules/elb"
-  vpc_id   = "${var.vpc_id}"
+  vpc_id   = "${module.staging_vpc.vpc_id}"
   name     = "${var.staging_elb_name}"
   subnets  = "${module.staging_vpc.public_subnet_ids}"
   ssl_cert = "${var.acm_ssl_arn}"
@@ -34,7 +35,7 @@ module "staging_elb" {
 ## autoscaling group for public web servers
 module "weather_asg" {
   source          = "../modules/asg"
-  vpc_id          = "${var.vpc_id}"
+  vpc_id          = "${module.staging_vpc.vpc_id}"
   stage           = "staging"
   my_ips          = "${var.my_ips}"
   loadbalancer_id = "${module.staging_elb.elb_id}"
@@ -49,6 +50,6 @@ resource "aws_route53_record" "staging-simpleweather-us" {
   zone_id = "${var.zone_id}"
   name    = "staging"
   type    = "CNAME"
-
+  ttl     = 300
   records = ["${module.staging_elb.dns_name}"]
 }

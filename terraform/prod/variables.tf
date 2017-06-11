@@ -7,9 +7,14 @@ variable "aws_region" {
   default = "us-west-2"
 }
 
-# weather vpc id
-variable "vpc_id" {
-  default = "vpc-8d96eeea"
+# prod vpc cidr
+variable "vpc_cidr" {
+  default = "10.0.0.0/16"
+}
+
+# prod vpc name
+variable "vpc_name" {
+  default = "prod_vpc"
 }
 
 # public subnet cidr blocks
@@ -37,7 +42,7 @@ variable "my_ips" {
 }
 
 variable "ami" {
-  default = "ami-08c4cd71"
+  default = "ami-0f9b9276"
 }
 
 variable "zone_id" {

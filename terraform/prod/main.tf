@@ -17,7 +17,8 @@ provider "aws" {
 ## set up vpc (public/private subnets, route tables, igw)
 module "weather_vpc" {
   source         = "../modules/vpc"
-  vpc_id         = "${var.vpc_id}"
+  vpc_cidr       = "${var.vpc_cidr}"
+  vpc_name       = "${var.vpc_name}"
   public_subnets = "${var.public_subnets}"
   public_azs     = "${var.public_azs}"
 }
@@ -25,7 +26,7 @@ module "weather_vpc" {
 ## production load balancer
 module "prod_elb" {
   source   = "../modules/elb"
-  vpc_id   = "${var.vpc_id}"
+  vpc_id   = "${module.weather_vpc.vpc_id}"
   name     = "${var.prod_elb_name}"
   subnets  = "${module.weather_vpc.public_subnet_ids}"
   ssl_cert = "${var.acm_ssl_arn}"
@@ -33,15 +34,15 @@ module "prod_elb" {
 
 ## autoscaling group for public web servers
 module "weather_asg" {
-  source = "../modules/asg"
-  vpc_id = "${var.vpc_id}"
-  stage = "prod"
-  my_ips = "${var.my_ips}"
+  source          = "../modules/asg"
+  vpc_id          = "${module.weather_vpc.vpc_id}"
+  stage           = "prod"
+  my_ips          = "${var.my_ips}"
   loadbalancer_id = "${module.prod_elb.elb_id}"
-  subnet_ids = "${module.weather_vpc.public_subnet_ids}"
-  ami = "${var.ami}"
-  key_name = "${var.key_name}"
-  user_data = "${file("./user-data.sh")}"
+  subnet_ids      = "${module.weather_vpc.public_subnet_ids}"
+  ami             = "${var.ami}"
+  key_name        = "${var.key_name}"
+  user_data       = "${file("./user-data.sh")}"
 }
 
 ## route53 records for prod_elb
