@@ -45,26 +45,27 @@ resource "aws_security_group" "asg-web-sg" {
 resource "aws_autoscaling_group" "asg" {
   lifecycle { create_before_destroy = true }
 
-  name = "tf-asg-${var.stage}-${aws_launch_configuration.launch.name}"
-  max_size = "${var.max_size}"
-  min_size = "${var.min_size}"
-  wait_for_elb_capacity = 1
-  desired_capacity = "${var.desired_capacity}"
+  name                      = "tf-asg-${var.stage}-${aws_launch_configuration.launch.name}"
+  max_size                  = "${var.max_size}"
+  min_size                  = "${var.min_size}"
+  wait_for_elb_capacity     = 1
+  desired_capacity          = "${var.desired_capacity}"
   health_check_grace_period = 300
-  health_check_type = "ELB"
-  launch_configuration = "${aws_launch_configuration.launch.id}"
-  load_balancers = ["${var.loadbalancer_id}"]
-  vpc_zone_identifier = ["${var.subnet_ids}"]
+  health_check_type         = "ELB"
+  launch_configuration      = "${aws_launch_configuration.launch.id}"
+  load_balancers            = ["${var.loadbalancer_id}"]
+  vpc_zone_identifier       = ["${var.subnet_ids}"]
 }
 
 resource "aws_launch_configuration" "launch" {
     lifecycle { create_before_destroy = true }
 
-    image_id = "${var.ami}"
-    instance_type = "t2.micro"
-    key_name = "${var.key_name}"
+    image_id             = "${var.ami}"
+    instance_type        = "t2.micro"
+    key_name             = "${var.key_name}"
+    iam_instance_profile = "env-ec2-role"
 
-    security_groups = ["${aws_security_group.asg-web-sg.id}"]
+    security_groups      = ["${aws_security_group.asg-web-sg.id}"]
 
-    user_data = "${var.user_data}"
+    user_data            = "${var.user_data}"
 }
