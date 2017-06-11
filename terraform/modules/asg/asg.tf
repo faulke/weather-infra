@@ -12,7 +12,7 @@ variable "user_data" {}
 
 # security group for autoscaling instances
 resource "aws_security_group" "asg-web-sg" {
-  name        = "tf-web-sg"
+  name        = "tf-${var.stage}-web-sg"
   description = "ec2 sg from terraform"
   vpc_id      = "${var.vpc_id}"
 

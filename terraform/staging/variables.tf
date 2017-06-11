@@ -7,19 +7,18 @@ variable "aws_region" {
   default = "us-west-2"
 }
 
-# prod vpc cidr
+# staging vpc cidr
 variable "vpc_cidr" {
   default = "10.0.0.0/16"
 }
 
-# prod vpc name
 variable "vpc_name" {
-  default = "prod_vpc"
+  default = "staging-vpc"
 }
 
 # public subnet cidr blocks
 variable "public_subnets" {
-  default = ["10.0.0.0/24", "10.0.1.0/24"]
+  default = ["10.0.20.0/24", "10.0.21.0/24"]
 }
 
 # public availability zones
@@ -27,8 +26,8 @@ variable "public_azs" {
   default = ["us-west-2a", "us-west-2b"]
 }
 
-variable "prod_elb_name" {
-  default = "prod-elb"
+variable "staging_elb_name" {
+  default = "staging-elb"
 }
 
 # acm ssl certificate for elb

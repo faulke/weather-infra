@@ -2,7 +2,7 @@
 terraform {
   backend "s3" {
     bucket = "weather-infra"
-    key    = "prod/terraform.tfstate"
+    key    = "staging/terraform.tfstate"
     region = "us-west-2"
   }
 }
@@ -15,7 +15,7 @@ provider "aws" {
 }
 
 ## set up vpc (public/private subnets, route tables, igw)
-module "weather_vpc" {
+module "staging_vpc" {
   source         = "../modules/vpc"
   vpc_cidr       = "${var.vpc_cidr}"
   vpc_name       = "${var.vpc_name}"
@@ -24,36 +24,32 @@ module "weather_vpc" {
 }
 
 ## production load balancer
-module "prod_elb" {
+module "staging_elb" {
   source   = "../modules/elb"
-  vpc_id   = "${module.weather_vpc.vpc_id}"
-  name     = "${var.prod_elb_name}"
-  subnets  = "${module.weather_vpc.public_subnet_ids}"
+  vpc_id   = "${module.staging_vpc.vpc_id}"
+  name     = "${var.staging_elb_name}"
+  subnets  = "${module.staging_vpc.public_subnet_ids}"
   ssl_cert = "${var.acm_ssl_arn}"
 }
 
 ## autoscaling group for public web servers
 module "weather_asg" {
   source          = "../modules/asg"
-  vpc_id          = "${module.weather_vpc.vpc_id}"
-  stage           = "prod"
+  vpc_id          = "${module.staging_vpc.vpc_id}"
+  stage           = "staging"
   my_ips          = "${var.my_ips}"
-  loadbalancer_id = "${module.prod_elb.elb_id}"
-  subnet_ids      = "${module.weather_vpc.public_subnet_ids}"
+  loadbalancer_id = "${module.staging_elb.elb_id}"
+  subnet_ids      = "${module.staging_vpc.public_subnet_ids}"
   ami             = "${var.ami}"
   key_name        = "${var.key_name}"
   user_data       = "${file("./user-data.sh")}"
 }
 
 ## route53 records for prod_elb
-resource "aws_route53_record" "simpleweather-us" {
+resource "aws_route53_record" "staging-simpleweather-us" {
   zone_id = "${var.zone_id}"
-  name    = "simpleweather.us"
-  type    = "A"
-
-  alias {
-    zone_id                = "${module.prod_elb.zone_id}"
-    name                   = "${module.prod_elb.dns_name}."
-    evaluate_target_health = false
-  }
+  name    = "staging"
+  type    = "CNAME"
+  ttl     = 300
+  records = ["${module.staging_elb.dns_name}"]
 }
