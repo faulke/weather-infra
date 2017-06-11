@@ -47,6 +47,7 @@ Temporary Items
 .apdisk
 
 # Terraform
+*.terraform
 *.tfvars
 *.tfstate
 *.tfstate.backup

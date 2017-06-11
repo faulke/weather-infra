@@ -12,6 +12,9 @@ until [ $AMI != "None" ]; do
 
 echo $AMI
 
+# get modules
+terraform get
+
 # get tfstate from s3 backend
 terraform init
 
