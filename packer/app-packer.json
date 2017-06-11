@@ -14,7 +14,7 @@
     "region": "us-west-2",
     "source_ami": "{{user `ami`}}",
     "vpc_id": "vpc-8d96eeea",
-    "subnet_id": "subnet-5766f730",
+    "subnet_id": "subnet-ebb18d8c",
     "associate_public_ip_address": true,
     "instance_type": "t2.micro",
     "ssh_username": "ec2-user",
