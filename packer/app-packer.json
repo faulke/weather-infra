@@ -39,8 +39,7 @@
         "sudo mkdir weatherapp",
         "sudo unzip -qq weatherapp.zip -d ./weatherapp",
         "cd weatherapp",
-        "sudo npm install forever -g",
-        "sudo aws s3 cp s3://envtester/.env .env"
+        "sudo npm install forever -g"
       ]
     }
   ]
